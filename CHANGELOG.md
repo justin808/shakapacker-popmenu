@@ -8,15 +8,18 @@
 ## [Unreleased]
 Changes since the last non-beta release.
 
+## [v8.4.0] - September 8, 2025
 
 ### Added
 
-- Support for subresource integrity. [PR 570](https://github.com/shakacode/shakapacker/pull/570) by [panagiotisplytas](https://github.com/panagiotisplytas)
+* Rspack support as an alternative bundler to webpack. Configure `bundler: 'rspack'` in `shakapacker.yml` to use Rspack's faster Rust-based bundling with webpack-compatible API, built-in SWC loader, and CSS extraction. Automatic bundler detection in `bin/shakapacker` with fallback support for webpack configurations.
+* Support for subresource integrity. [PR 570](https://github.com/shakacode/shakapacker/pull/570) by [panagiotisplytas](https://github.com/panagiotisplytas)
 
 ### Fixed
 
-- Install the latest major version of peer dependencies [PR 576](https://github.com/shakacode/shakapacker/pull/576) by [G-Rath](https://github.com/g-rath).
-- Remove duplicate word in comment from generated `shakapacker.yml` config [PR 572](https://github.com/shakacode/shakapacker/pull/572) by [G-Rath](https://github.com/g-rath).
+* Install the latest major version of peer dependencies [PR 576](https://github.com/shakacode/shakapacker/pull/576) by [G-Rath](https://github.com/g-rath).
+* Remove duplicate word in comment from generated `shakapacker.yml` config [PR 572](https://github.com/shakacode/shakapacker/pull/572) by [G-Rath](https://github.com/g-rath).
+* fix: update webpack-dev-server to secure versions (^4.15.2 || ^5.2.2) [PR 585](https://github.com/shakacode/shakapacker/pull/585) by [justin808](https://github.com/justin808)
 
 ## [v8.3.0] - April 25, 2025
 ### Added
@@ -429,7 +432,8 @@ Note: [Rubygem is 6.3.0.pre.rc.1](https://rubygems.org/gems/shakapacker/versions
 ## v5.4.3 and prior changes from rails/webpacker
 See [CHANGELOG.md in rails/webpacker (up to v5.4.3)](https://github.com/rails/webpacker/blob/master/CHANGELOG.md)
 
-[Unreleased]: https://github.com/shakacode/shakapacker/compare/v8.3.0...main
+[Unreleased]: https://github.com/shakacode/shakapacker/compare/v8.4.0...main
+[v8.4.0]: https://github.com/shakacode/shakapacker/compare/v8.3.0...v8.4.0
 [v8.3.0]: https://github.com/shakacode/shakapacker/compare/v8.2.0...v8.3.0
 [v8.2.0]: https://github.com/shakacode/shakapacker/compare/v8.1.0...v8.2.0
 [v8.1.0]: https://github.com/shakacode/shakapacker/compare/v8.0.2...v8.1.0

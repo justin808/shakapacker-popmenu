@@ -4,13 +4,19 @@
 const { existsSync, readdirSync } = require("fs")
 const { basename, dirname, join, relative, resolve } = require("path")
 const extname = require("path-complete-extname")
-// TODO: Change to `const { WebpackAssetsManifest }` when dropping 'webpack-assets-manifest < 6.0.0' (Node >=20.10.0) support
-const WebpackAssetsManifest = require("webpack-assets-manifest")
-const webpack = require("webpack")
 const rules = require("../rules")
 const config = require("../config")
 const { isProduction } = require("../env")
 const { moduleExists } = require("../utils/helpers")
+const { conditionalRequire } = require("../utils/conditionalRequire")
+
+// TODO: Change to `const { WebpackAssetsManifest }` when dropping 'webpack-assets-manifest < 6.0.0' (Node >=20.10.0) support
+const WebpackAssetsManifest = conditionalRequire(
+  "webpack-assets-manifest",
+  null,
+  "webpack"
+)
+const webpack = conditionalRequire("webpack", null, "webpack")
 
 const getFilesInDirectory = (dir, includeNested) => {
   if (!existsSync(dir)) {
@@ -73,12 +79,12 @@ const getModulePaths = () => {
   return result
 }
 
-// TODO: Remove WebpackAssetsManifestConstructor workaround when dropping 'webpack-assets-manifest < 6.0.0' (Node >=20.10.0) support
-const WebpackAssetsManifestConstructor =
-  "WebpackAssetsManifest" in WebpackAssetsManifest
-    ? WebpackAssetsManifest.WebpackAssetsManifest
-    : WebpackAssetsManifest
 const getPlugins = () => {
+  // TODO: Remove WebpackAssetsManifestConstructor workaround when dropping 'webpack-assets-manifest < 6.0.0' (Node >=20.10.0) support
+  const WebpackAssetsManifestConstructor =
+    "WebpackAssetsManifest" in WebpackAssetsManifest
+      ? WebpackAssetsManifest.WebpackAssetsManifest
+      : WebpackAssetsManifest
   const plugins = [
     new webpack.EnvironmentPlugin(process.env),
     new WebpackAssetsManifestConstructor({
@@ -94,27 +100,31 @@ const getPlugins = () => {
 
   if (moduleExists("css-loader") && moduleExists("mini-css-extract-plugin")) {
     const hash = isProduction || config.useContentHash ? "-[contenthash:8]" : ""
-    const MiniCssExtractPlugin = require("mini-css-extract-plugin")
+    const MiniCssExtractPlugin = conditionalRequire(
+      "mini-css-extract-plugin",
+      null,
+      "webpack"
+    )
     plugins.push(
       new MiniCssExtractPlugin({
         filename: `css/[name]${hash}.css`,
         chunkFilename: `css/[id]${hash}.css`,
         // For projects where css ordering has been mitigated through consistent use of scoping or naming conventions,
         // the css order warnings can be disabled by setting the ignoreOrder flag.
-        // Read: https://stackoverflow.com/questions/51971857/mini-css-extract-plugin-warning-in-chunk-chunkname-mini-css-extract-plugin-con
         ignoreOrder: config.css_extract_ignore_order_warnings
       })
     )
   }
 
   if (
-    moduleExists("webpack-subresource-integrity") &&
-    config.integrity.enabled
+    config.integrity.enabled &&
+    moduleExists("webpack-subresource-integrity")
   ) {
-    const {
-      SubresourceIntegrityPlugin
-    } = require("webpack-subresource-integrity")
-
+    const SubresourceIntegrityPlugin = conditionalRequire(
+      "webpack-subresource-integrity",
+      null,
+      "webpack"
+    )
     plugins.push(
       new SubresourceIntegrityPlugin({
         hashFuncNames: config.integrity.hash_functions,
@@ -160,12 +170,10 @@ module.exports = {
 
   optimization: {
     splitChunks: { chunks: "all" },
-
     runtimeChunk: "single"
   },
 
   module: {
-    strictExportPresence: true,
     rules
   }
 }

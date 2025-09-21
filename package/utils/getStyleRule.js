@@ -10,10 +10,24 @@ const getStyleRule = (test, preprocessors = []) => {
         options: { sourceMap: true }
       }))
 
-    // style-loader is required when using css modules with HMR on the webpack-dev-server
+    // Extract the first loader (usually the extraction loader) and remaining preprocessors
+    const [extractionLoader, ...otherPreprocessors] = preprocessors
+
+    // Conditional require for mini-css-extract-plugin
+    const getMiniCssLoader = () => {
+      try {
+        return require("mini-css-extract-plugin").loader
+      } catch (error) {
+        return "style-loader" // Fallback to style-loader if mini-css-extract-plugin not available
+      }
+    }
+
+    // Fallback to mini-css-extract-plugin if no extraction loader provided (for webpack compatibility)
+    const finalExtractionLoader =
+      extractionLoader || (inliningCss ? "style-loader" : getMiniCssLoader())
 
     const use = [
-      inliningCss ? "style-loader" : require("mini-css-extract-plugin").loader,
+      finalExtractionLoader,
       {
         loader: require.resolve("css-loader"),
         options: {
@@ -25,11 +39,12 @@ const getStyleRule = (test, preprocessors = []) => {
         }
       },
       tryPostcss(),
-      ...preprocessors
+      ...otherPreprocessors
     ].filter(Boolean)
 
     return {
       test,
+      type: "javascript/auto", // Required for rspack CSS extraction
       use
     }
   }
@@ -37,4 +52,4 @@ const getStyleRule = (test, preprocessors = []) => {
   return null
 }
 
-module.exports = getStyleRule
+module.exports = { getStyleRule }
